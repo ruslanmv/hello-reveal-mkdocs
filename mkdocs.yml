@@ -1,0 +1,29 @@
+# mkdocs.yml
+
+site_name: "Hello MkDocs + Reveal.js"
+site_description: "Author once in Markdown, publish as MkDocs docs, Reveal.js slides, and PDF — locally and in CI."
+site_url: https://ruslanmv.github.io/hello-reveal-mkdocs/
+repo_url: https://github.com/ruslanmv/hello-reveal-mkdocs
+repo_name: ruslanmv/hello-reveal-mkdocs
+edit_uri: edit/main/docs/
+strict: true
+
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - IBM watsonx & Agentic AI: watsonx-agentic-ai.md
+  - Slides:
+      - HTML Deck: slides/watsonx-agentic-ai.html
+      - PDF Deck: slides/watsonx-agentic-ai.pdf
+
+markdown_extensions:
+  - attr_list
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search

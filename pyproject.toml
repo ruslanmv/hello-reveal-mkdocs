@@ -1,0 +1,17 @@
+[project]
+name = "hello-reveal-mkdocs"
+version = "0.1.0"
+description = "Author once in Markdown, publish as MkDocs docs, Reveal.js slides, and PDF — locally and in CI."
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+authors = [
+  { name = "Ruslan Magana Vsevolodovna", email = "contact@ruslanmv.com" }
+]
+dependencies = [
+  "mkdocs>=1.6",
+  "mkdocs-material>=9.5",
+]
+
+# No [tool.uv] block needed; uv reads requires-python.
+# If you want a hard project-local default, you can also add a `.python-version` file with:
+# 3.11

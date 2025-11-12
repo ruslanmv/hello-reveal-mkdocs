@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+.python-version
+
+# Virtual env
+.venv/
+
+# MkDocs site build
+site/
+
+# OS
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+uv.lock
+
+* copy.*
+/docs/slides
