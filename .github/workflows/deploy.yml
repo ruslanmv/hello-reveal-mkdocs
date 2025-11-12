@@ -40,18 +40,27 @@ jobs:
         run: bash scripts/generate_slides.sh
 
       # --- PDF (DeckTape via Docker) ---
-      # Run container with the same UID:GID as the runner to avoid EACCES on bind mount
       - name: Export PDF with DeckTape
         run: |
           mkdir -p docs/slides
           uid="$(id -u)"; gid="$(id -g)"
           docker run --rm -t \
             -u "${uid}:${gid}" \
+            --shm-size=1g \
+            -e HOME=/tmp \
             -v "$PWD":/work \
             astefanutti/decktape \
             reveal \
             --size 1920x1080 \
             --slides 1- \
+            --load-pause 1500 \
+            --chrome-arg=--no-sandbox \
+            --chrome-arg=--disable-setuid-sandbox \
+            --chrome-arg=--disable-dev-shm-usage \
+            --chrome-arg=--user-data-dir=/tmp/chrome-user \
+            --chrome-arg=--crash-dumps-dir=/tmp \
+            --chrome-arg=--allow-file-access-from-files \
+            --chrome-arg=--autoplay-policy=no-user-gesture-required \
             "file:///work/docs/slides/watsonx-agentic-ai.html?print-pdf" \
             "/work/docs/slides/watsonx-agentic-ai.pdf"
 
@@ -70,7 +79,6 @@ jobs:
       - name: Build MkDocs site
         run: uv run mkdocs build --strict
 
-      # --- Upload built site to the Pages artifact bucket ---
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

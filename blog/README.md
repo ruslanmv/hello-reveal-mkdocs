@@ -2,7 +2,14 @@
 
 **Author:** Ruslan Magana Vsevolodovna ([contact@ruslanmv.com](mailto:contact@ruslanmv.com))
 
-Author once in Markdown, publish as **MkDocs** docs, **Reveal.js** slides, and a **PDF** deck — locally and in CI. We’ll start simple and level up as we go, keeping the same repo structure you have now.
+Today we are going to empower your content with MkDocs & Reveal.js for great Presentations from a Single Markdown Source.
+Keeping docs and slides in sync is hard. You update a code sample in the docs, forget the deck, and... hello drift. Let’s fix that. In this post, you’ll author one Markdown file and publish it as both:
+
+* A page in your MkDocs site.
+
+* An interactive Reveal.js presentation (plus a PDF export).
+
+All of this will be automated using Pandoc, a Makefile, and a GitHub Actions workflow. We'll use IBM watsonx Agentic AI for the example topic, but the pipeline works for anything.
 
 ---
 
