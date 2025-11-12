@@ -121,4 +121,4 @@ See `.github/workflows/deploy.yml`. It:
 - MkDocs missing slides? Confirm artifacts exist in `docs/slides/` before `mkdocs build`.
 
 ## License
-MIT—adapt and reuse.
+Apache 2.0 and reuse.
