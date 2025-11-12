@@ -275,11 +275,13 @@ This builds slides, exports PDF, builds MkDocs, and deploys to GitHub Pages on e
 `.github/workflows/deploy.yml`:
 
 ```yaml
-name: Docs & Slides Deployment
+name: Build & Deploy — MkDocs + Reveal.js + PDF
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - master
   workflow_dispatch:
 
 permissions:
@@ -292,49 +294,78 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  build:
+    name: Build site, slides & PDF
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Set up Pages
+      - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      # --- Install Dependencies ---
+      # --- Slides (Pandoc) ---
       - name: Install Pandoc
-        run: sudo apt-get update && sudo apt-get install -y pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
 
+      - name: Generate Reveal.js HTML slides
+        run: bash scripts/generate_slides.sh
+
+      # --- PDF (DeckTape via Docker) ---
+      # Run container with the same UID:GID as the runner to avoid EACCES on bind mount
+      - name: Export PDF with DeckTape
+        run: |
+          mkdir -p docs/slides
+          uid="$(id -u)"; gid="$(id -g)"
+          docker run --rm -t \
+            -u "${uid}:${gid}" \
+            -v "$PWD":/work \
+            astefanutti/decktape \
+            reveal \
+            --size 1920x1080 \
+            --slides 1- \
+            "file:///work/docs/slides/watsonx-agentic-ai.html?print-pdf" \
+            "/work/docs/slides/watsonx-agentic-ai.pdf"
+
+      # --- MkDocs (via uv) ---
       - name: Install uv (Python env)
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
-      - name: Configure uv path
+      - name: Add uv to PATH
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Install Python and Dependencies
+      - name: Install Python 3.11 and deps
         run: |
           uv python install 3.11
           uv sync
 
-      # --- Build Site (using our Makefile) ---
-      - name: Build MkDocs site, Slides, and PDF
-        run: make build
-        # This one command runs:
-        # 1. scripts/vendor_reveal.sh
-        # 2. find ... -delete (cleans READMEs)
-        # 3. scripts/generate_slides.sh
-        # 4. scripts/export_pdf.sh
-        # 5. uv run mkdocs build --strict
+      - name: Build MkDocs site
+        run: uv run mkdocs build --strict
 
-      # --- Upload & Deploy ---
+      # --- Upload built site to the Pages artifact bucket ---
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./site
+          path: site
 
-      - name: Deploy to GitHub Pages
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+
 ```
 
 After the workflow finishes, your content is available at:
