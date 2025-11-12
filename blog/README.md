@@ -280,10 +280,6 @@ name: Docs & Slides Deployment
 on:
   push:
     branches: [ main ]
-    paths:
-      - 'docs/**/*.md'
-      - 'scripts/**'
-      - 'mkdocs.yml'
   workflow_dispatch:
 
 permissions:
@@ -292,67 +288,52 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: "pages"
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      HTML_OUT: docs/slides/watsonx-agentic-ai.html
-      PDF_OUT: docs/slides/watsonx-agentic-ai.pdf
-
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Configure Pages
+      - name: Set up Pages
         uses: actions/configure-pages@v5
 
+      # --- Install Dependencies ---
       - name: Install Pandoc
+        run: sudo apt-get update && sudo apt-get install -y pandoc
+
+      - name: Install uv (Python env)
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Configure uv path
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install Python and Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y pandoc
+          uv python install 3.11
+          uv sync
 
-      - name: Generate Reveal.js HTML
-        run: bash scripts/generate_slides.sh
+      # --- Build Site (using our Makefile) ---
+      - name: Build MkDocs site, Slides, and PDF
+        run: make build
+        # This one command runs:
+        # 1. scripts/vendor_reveal.sh
+        # 2. find ... -delete (cleans READMEs)
+        # 3. scripts/generate_slides.sh
+        # 4. scripts/export_pdf.sh
+        # 5. uv run mkdocs build --strict
 
-      - name: PDF via DeckTape
-        run: |
-          docker run --rm -t \
-            -v "$PWD":/work \
-            astefanutti/decktape \
-            reveal \
-            --size 1920x1080 \
-            --slides 1- \
-            "file:///work/${{ env.HTML_OUT }}?print-pdf" \
-            "/work/${{ env.PDF_OUT }}"
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-
-      - name: Install MkDocs
-        run: pip install --upgrade pip && pip install mkdocs mkdocs-material
-
-      - name: Build MkDocs site
-        run: mkdocs build --strict
-
+      # --- Upload & Deploy ---
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: ./site
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
 ```
 
