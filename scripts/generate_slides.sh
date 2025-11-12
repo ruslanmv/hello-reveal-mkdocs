@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # scripts/generate_slides.sh
-# Standards-only route:
-# - If pandoc < 2.12 → Reveal v3 CDN (cdnjs 3.9.2) to match old template paths.
+# Standards-only route (no vendoring):
+# - If pandoc < 2.12 → Reveal v3 CDN (cdnjs 3.9.2) to match old template paths (css/*, js/*).
 # - If pandoc >= 2.12 → Reveal v4 CDN (jsDelivr dist/*).
-# No local vendoring, no shims.
+# Also forces full-HD layout so PDF export is true 1920×1080, not shrunken print CSS.
 
 set -euo pipefail
 
@@ -21,7 +21,7 @@ ver_ge() { [ "$(printf '%s\n' "$2" "$1" | sort -V | head -n1)" = "$2" ]; }
 
 mkdir -p "${OUT_DIR}"
 
-# Prefer --embed-resources when available
+# Prefer --embed-resources when available (pandoc ≥ 3.1); fallback to --self-contained
 if pandoc --help | grep -q -- "--embed-resources"; then
   EMBED_FLAG="--embed-resources"
 else
@@ -54,6 +54,8 @@ pandoc \
   --variable "transition=${REVEAL_TRANSITION}" \
   --variable slideNumber=true \
   --variable hash=true \
+  -V width=1920 \
+  -V height=1080 \
   --metadata=pagetitle:"IBM watsonx & Agentic AI" \
   -o "${HTML_OUT}" \
   "${SOURCE_MD}"
