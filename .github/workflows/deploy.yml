@@ -40,29 +40,62 @@ jobs:
         run: bash scripts/generate_slides.sh
 
       # --- PDF (DeckTape via Docker) ---
-      - name: Export PDF with DeckTape
+      - name: Export PDF with DeckTape (ALL slides)
         run: |
           mkdir -p docs/slides
           uid="$(id -u)"; gid="$(id -g)"
+          
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Exporting ALL slides to PDF with extended timing..."
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          
           docker run --rm -t \
             -u "${uid}:${gid}" \
-            --shm-size=1g \
+            --shm-size=2g \
             -e HOME=/tmp \
             -v "$PWD":/work \
             astefanutti/decktape \
             reveal \
             --size 1920x1080 \
-            --slides 1- \
-            --load-pause 1500 \
+            --slides 1-100 \
+            --load-pause 8000 \
+            --pause 2000 \
             --chrome-arg=--no-sandbox \
             --chrome-arg=--disable-setuid-sandbox \
             --chrome-arg=--disable-dev-shm-usage \
+            --chrome-arg=--disable-gpu \
+            --chrome-arg=--hide-scrollbars \
+            --chrome-arg=--mute-audio \
+            --chrome-arg=--disable-background-timer-throttling \
+            --chrome-arg=--disable-renderer-backgrounding \
+            --chrome-arg=--disable-backgrounding-occluded-windows \
             --chrome-arg=--user-data-dir=/tmp/chrome-user \
             --chrome-arg=--crash-dumps-dir=/tmp \
             --chrome-arg=--allow-file-access-from-files \
+            --chrome-arg=--disable-web-security \
             --chrome-arg=--autoplay-policy=no-user-gesture-required \
-            "file:///work/docs/slides/watsonx-agentic-ai.html?print-pdf" \
+            "file:///work/docs/slides/watsonx-agentic-ai.html" \
             "/work/docs/slides/watsonx-agentic-ai.pdf"
+          
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      # Verify PDF was created with multiple pages
+      - name: Verify PDF
+        run: |
+          if [ ! -f "docs/slides/watsonx-agentic-ai.pdf" ]; then
+            echo "❌ ERROR: PDF file not found!"
+            exit 1
+          fi
+          
+          PDF_SIZE=$(stat -c%s "docs/slides/watsonx-agentic-ai.pdf")
+          echo "📄 PDF size: ${PDF_SIZE} bytes"
+          
+          if [ "${PDF_SIZE}" -lt 100000 ]; then
+            echo "⚠️  WARNING: PDF is small (${PDF_SIZE} bytes)"
+            echo "   This might mean only 1 page was captured"
+          else
+            echo "✅ PDF size looks good"
+          fi
 
       # --- MkDocs (via uv) ---
       - name: Install uv (Python env)

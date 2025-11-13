@@ -1,5 +1,4 @@
 # Makefile — uv-based workflow for MkDocs + Reveal.js + DeckTape
-# Works on macOS, Linux, and Windows (Git Bash / WSL)
 
 SHELL := /usr/bin/env bash
 
@@ -8,8 +7,8 @@ DECKTAPE_IMAGE ?= astefanutti/decktape:latest
 SLIDE_SIZE     ?= 1920x1080
 UV_PY          ?= 3.11
 
-# NEW: control which slides to print (1- = all)
-PDF_SLIDES     ?= 1-
+# NEW: Explicit range for better compatibility (1-100 covers most decks)
+PDF_SLIDES     ?= 1-100
 
 .PHONY: help install install-tools bootstrap slides pdf serve serve_noslides build clean check
 
@@ -19,7 +18,7 @@ help:
 	@echo "  install-tools   - run cross-platform bootstrap only (Pandoc/Docker checks)"
 	@echo "  slides          - generate Reveal.js HTML slides via Pandoc (CDN auto-select)"
 	@echo "  pdf             - export slides to PDF via DeckTape (Docker)"
-	@echo "                    (range via PDF_SLIDES, default: 1- = all slides)"
+	@echo "                    (range via PDF_SLIDES, default: 1-100)"
 	@echo "  serve           - run mkdocs serve (builds slides first)"
 	@echo "  serve_noslides  - serve without regenerating slides"
 	@echo "  build           - build MkDocs site into ./site (slides+pdf first)"
@@ -54,9 +53,12 @@ slides:
 	@bash scripts/generate_slides.sh
 
 pdf:
+	@echo "Exporting PDF with extended timing for full HD slides..."
 	@DECKTAPE_IMAGE="$(DECKTAPE_IMAGE)" \
 	  SLIDE_SIZE="$(SLIDE_SIZE)" \
 	  SLIDES_RANGE="$(PDF_SLIDES)" \
+	  LOAD_PAUSE=8000 \
+	  PAUSE=2000 \
 	  bash scripts/export_pdf.sh
 
 # ---- Local dev ----
