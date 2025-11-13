@@ -52,3 +52,26 @@ agent-builder deploy my-wx-agent --env production
 - Transparency & observability  
 - Bias & fairness checks  
 - Accountability & human oversight
+
+
+## Neural Network Forward Pass {data-background-color="#1a1a1a"}
+
+The forward propagation for a single layer is:
+
+$$z^{[l]} = W^{[l]}a^{[l-1]} + b^{[l]}$$
+
+$$a^{[l]} = g^{[l]}(z^{[l]})$$
+
+where:
+- $W^{[l]}$ is the weight matrix
+- $b^{[l]}$ is the bias vector
+- $g^{[l]}$ is the activation function
+- $a^{[l]}$ is the activation output
+
+**Common Activation Functions:**
+
+$$\text{ReLU}(x) = \max(0, x)$$
+
+$$\text{Sigmoid}(x) = \frac{1}{1 + e^{-x}}$$
+
+$$\text{Tanh}(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}$$

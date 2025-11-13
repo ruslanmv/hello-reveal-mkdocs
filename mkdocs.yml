@@ -1,5 +1,3 @@
-# mkdocs.yml
-
 site_name: "Hello MkDocs + Reveal.js"
 site_description: "Author once in Markdown, publish as MkDocs docs, Reveal.js slides, and PDF — locally and in CI."
 site_url: https://ruslanmv.github.io/hello-reveal-mkdocs/
@@ -24,6 +22,12 @@ markdown_extensions:
   - tables
   - toc:
       permalink: true
+  - pymdownx.arithmatex:
+      generic: true
 
 plugins:
   - search
+
+extra_javascript:
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
