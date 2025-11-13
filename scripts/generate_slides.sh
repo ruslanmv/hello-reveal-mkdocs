@@ -39,10 +39,12 @@ REVEAL_THEME="${REVEAL_THEME:-black}"
 # Transitions: none, fade, slide, convex, concave, zoom
 REVEAL_TRANSITION="${REVEAL_TRANSITION:-convex}"
 
-# Code highlighting style (FIXED: Use valid Pandoc styles only)
+# Code highlighting style
 # Valid styles: pygments, tango, espresso, zenburn, kate, monochrome, breezedark, haddock
-# Default to zenburn (dark, good for black/night themes) or pygments (light themes)
 HIGHLIGHT_STYLE="${HIGHLIGHT_STYLE:-zenburn}"
+
+# Math support (uses CDN to avoid local file errors)
+ENABLE_MATH="${ENABLE_MATH:-yes}"
 
 # Pick CDN based on Pandoc's template expectations
 if ver_ge "${PANDOC_VER}" "2.12"; then
@@ -57,34 +59,48 @@ else
 fi
 
 echo "Theme: ${REVEAL_THEME} | Transition: ${REVEAL_TRANSITION} | Highlight: ${HIGHLIGHT_STYLE}"
+
+# Show math status
+if [ "${ENABLE_MATH}" = "yes" ]; then
+  echo "Math: enabled (MathJax CDN)"
+else
+  echo "Math: disabled"
+fi
+
 echo "Generating slides -> ${HTML_OUT}"
 
+# ========== BUILD PANDOC OPTIONS ==========
+PANDOC_OPTS=(
+  --standalone
+  --to=revealjs
+  --slide-level=2
+  ${EMBED_FLAG}
+  --variable "revealjs-url=${REVEAL_URL}"
+  --variable "theme=${REVEAL_THEME}"
+  --variable "transition=${REVEAL_TRANSITION}"
+  --variable slideNumber=true
+  --variable hash=true
+  --variable controls=true
+  --variable progress=true
+  --variable history=true
+  --variable center=true
+  --variable mouseWheel=true
+  --variable overview=true
+  --variable width=1920
+  --variable height=1080
+  --variable margin=0.04
+  --variable maxScale=2.0
+  --variable minScale=0.2
+  --highlight-style="${HIGHLIGHT_STYLE}"
+  --metadata=pagetitle:"IBM watsonx & Agentic AI"
+)
+
+# Add MathJax support if enabled (uses CDN to avoid local file errors)
+if [ "${ENABLE_MATH}" = "yes" ]; then
+  PANDOC_OPTS+=(--mathjax="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js")
+fi
+
 # ========== GENERATE SLIDES ==========
-pandoc \
-  --standalone \
-  --to=revealjs \
-  --slide-level=2 \
-  ${EMBED_FLAG} \
-  --variable "revealjs-url=${REVEAL_URL}" \
-  --variable "theme=${REVEAL_THEME}" \
-  --variable "transition=${REVEAL_TRANSITION}" \
-  --variable slideNumber=true \
-  --variable hash=true \
-  --variable controls=true \
-  --variable progress=true \
-  --variable history=true \
-  --variable center=true \
-  --variable mouseWheel=true \
-  --variable overview=true \
-  --variable width=1920 \
-  --variable height=1080 \
-  --variable margin=0.04 \
-  --variable maxScale=2.0 \
-  --variable minScale=0.2 \
-  --highlight-style="${HIGHLIGHT_STYLE}" \
-  --mathjax \
-  --metadata=pagetitle:"IBM watsonx & Agentic AI" \
-  -o "${HTML_OUT}" \
-  "${SOURCE_MD}"
+pandoc "${PANDOC_OPTS[@]}" -o "${HTML_OUT}" "${SOURCE_MD}"
 
 echo "[OK] Slides generated at ${HTML_OUT}"

@@ -18,6 +18,9 @@ REVEAL_THEME      ?= black
 REVEAL_TRANSITION ?= convex
 HIGHLIGHT_STYLE   ?= zenburn
 
+# MathJax Support (set to "yes" to enable LaTeX math, "no" to disable)
+ENABLE_MATH       ?= yes
+
 .PHONY: help install install-tools bootstrap \
         slides slides-dark slides-light slides-tech slides-creative \
         pdf pdf-debug \
@@ -68,6 +71,7 @@ help:
 	@echo "  PDF_SLIDES=$(PDF_SLIDES)   - Slide range for PDF export"
 	@echo "  LOAD_PAUSE=$(LOAD_PAUSE)ms - Initial page load time"
 	@echo "  PAUSE=$(PAUSE)ms       - Pause between slides"
+	@echo "  ENABLE_MATH=$(ENABLE_MATH)     - MathJax support (yes/no)"
 	@echo "================================================================"
 
 # ========== Installation ==========
@@ -110,6 +114,7 @@ slides:
 	@REVEAL_THEME="$(REVEAL_THEME)" \
 	 REVEAL_TRANSITION="$(REVEAL_TRANSITION)" \
 	 HIGHLIGHT_STYLE="$(HIGHLIGHT_STYLE)" \
+	 ENABLE_MATH="$(ENABLE_MATH)" \
 	 bash scripts/generate_slides.sh
 
 slides-dark:
@@ -117,6 +122,7 @@ slides-dark:
 	@REVEAL_THEME=black \
 	 REVEAL_TRANSITION=convex \
 	 HIGHLIGHT_STYLE=zenburn \
+	 ENABLE_MATH="$(ENABLE_MATH)" \
 	 bash scripts/generate_slides.sh
 	@echo "[OK] Dark theme slides generated!"
 
@@ -125,6 +131,7 @@ slides-light:
 	@REVEAL_THEME=white \
 	 REVEAL_TRANSITION=fade \
 	 HIGHLIGHT_STYLE=pygments \
+	 ENABLE_MATH="$(ENABLE_MATH)" \
 	 bash scripts/generate_slides.sh
 	@echo "[OK] Light theme slides generated!"
 
@@ -133,6 +140,7 @@ slides-tech:
 	@REVEAL_THEME=night \
 	 REVEAL_TRANSITION=slide \
 	 HIGHLIGHT_STYLE=zenburn \
+	 ENABLE_MATH="$(ENABLE_MATH)" \
 	 bash scripts/generate_slides.sh
 	@echo "[OK] Technical theme slides generated!"
 
@@ -141,6 +149,7 @@ slides-creative:
 	@REVEAL_THEME=sky \
 	 REVEAL_TRANSITION=zoom \
 	 HIGHLIGHT_STYLE=tango \
+	 ENABLE_MATH="$(ENABLE_MATH)" \
 	 bash scripts/generate_slides.sh
 	@echo "[OK] Creative theme slides generated!"
 
@@ -247,6 +256,7 @@ info:
 	@echo "  Theme:         $(REVEAL_THEME)"
 	@echo "  Transition:    $(REVEAL_TRANSITION)"
 	@echo "  Code Style:    $(HIGHLIGHT_STYLE)"
+	@echo "  Math Support:  $(ENABLE_MATH)"
 	@echo ""
 	@echo "PDF Export:"
 	@echo "  Size:          $(SLIDE_SIZE)"
