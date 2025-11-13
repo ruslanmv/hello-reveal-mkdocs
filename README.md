@@ -3,8 +3,7 @@
 # 📚 Hello MkDocs + Reveal.js
 
 ### Write Once, Publish Everywhere
-
-[![Build & Deploy](https://github.com/ruslanmv/hello-reveal-mkdocs/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/ruslanmv/hello-reveal-mkdocs/actions)
+[![Build & Deploy](https://github.com/ruslanmv/hello-reveal-mkdocs/actions/workflows/deploy.yml/badge.svg)](https://github.com/ruslanmv/hello-reveal-mkdocs/actions/workflows/deploy.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![MkDocs](https://img.shields.io/badge/MkDocs-Material-526CFE?logo=materialformkdocs)](https://squidfunk.github.io/mkdocs-material/)
 [![Reveal.js](https://img.shields.io/badge/Reveal.js-Slides-F2E142?logo=reveal.js&logoColor=000)](https://revealjs.com/)

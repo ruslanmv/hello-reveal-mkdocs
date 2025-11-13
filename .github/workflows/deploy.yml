@@ -1,4 +1,4 @@
-name: Build & Deploy — MkDocs + Reveal.js + PDF
+name: Build & Deploy
 
 on:
   push:
